@@ -44,14 +44,22 @@ Module.register("inspirational", {
         return container
     },
     socketNotificationReceived: function(notification, payload) {
-        Log.log("notification "+notification+"::"+payload)
-        if (notification == 'ERROR') {
+        Log.log("inspirational got notification "+notification+"::"+payload)
+        if (notification === 'ERROR') {
             this.backgroundUrl = null;
             this.message = payload;
             this.author = null;
             this.updateDom(0);
+        } else if (notification === 'BGIMAGES') {
+            Log.log("received bgimages "+payload)
+            this.backgroundImages = payload.images;
         } else {
-            this.backgroundUrl = payload.background;
+            if (payload.background) {
+                this.backgroundUrl = payload.background;
+            } else if (this.backgroundImages && this.backgroundImages.length > 0) {
+                var imageNum = Math.floor(Math.random() * this.backgroundImages.length)
+                this.backgroundUrl = "/public/images/" + this.backgroundImages[imageNum]
+            }
             this.message = payload.quote;
             this.author = payload.author;
             this.updateDom(this.config.refreshTime);
@@ -60,6 +68,7 @@ Module.register("inspirational", {
     notificationReceived: function(notification, payload, sender) {
         if (notification == "CLOCK_SECOND") {
             if (this.lastUpdate && Date.now() - this.lastUpdate >= this.config.reloadTime) {
+                Log.log("Refreshing")
                 this.sendSocketNotification("FETCH");
             }
         }
