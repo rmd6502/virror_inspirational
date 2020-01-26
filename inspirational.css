@@ -3,6 +3,12 @@
     font-size: larger;
     color: lightgray;
     background-color: rgba(0,0,0,.25);
+    position: absolute;
+    bottom: 17%;
+    left: 40%;
+    width: 80%;
+    transform: translate(-50%, -50%);
+    margin-bottom: 0;
 }
 
 .author {
@@ -10,4 +16,15 @@
     font-size: medium;
     color: khaki;
     background-color: rgba(0,0,0,.25);
+    position: absolute;
+    bottom: 10%;
+    left: 60%;
+    transform: translate(-50%, -50%);
+    margin-top: 0;
+}
+
+.background {
+    top: 15%;
+    width: 100%;
+    opacity: .6;
 }

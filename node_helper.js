@@ -23,7 +23,7 @@ module.exports = NodeHelper.create({
             }
         } else if (notification == "FETCH") {
             if (!this.qotdCache || !this.cacheDate || this.cacheDate - Date.now() > oneDay) {
-                console.log("no cace - fetching result")
+                console.log("no cache - fetching result")
                 this.fetchQotd();
             } else {
                 console.log("sending cache")
