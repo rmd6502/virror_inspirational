@@ -35,9 +35,10 @@ module.exports = NodeHelper.create({
         }
     },
     fetchQotd: function() {
-        console.log("apikey "+this.apiKey)
+        const url = this.url + "/" + this.endpoint + (this.category && this.category.length ? "?category="+this.category : "")
+        console.log("url "+url)
         request({
-            url: this.url + "/" + this.endpoint + (this.category ? "?category="+this.category : ""),
+            url: url,
             headers: {
                 'X-TheySaidSo-Api-Secret': this.apiKey,
                 'Accept': 'application/json'
@@ -52,6 +53,10 @@ module.exports = NodeHelper.create({
                 if (result.success && result.contents.quotes && result.contents.quotes.length > 0) {
                     this.qotdCache = result.contents.quotes[0];
                     this.cacheDate = new Date(result.contents.quotes[0].date);
+                    this.sendResult()
+                } else if (result.success && result.contents.quote) {
+                    this.qotdCache = result.contents
+                    this.cacheDate = new Date();
                     this.sendResult()
                 } else {
                     console.log("no data "+result.contents)

@@ -17,6 +17,9 @@ Module.register("inspirational", {
             apiKey: this.config.apiKey,
             category: this.config.category
         };
+        if (this.config.endpoint) {
+            configuration.endpoint = this.config.endpoint
+        }
         this.sendSocketNotification("CONFIG", configuration);
         this.sendSocketNotification("FETCH");
     },
@@ -58,7 +61,8 @@ Module.register("inspirational", {
                 this.backgroundUrl = payload.background;
             } else if (this.backgroundImages && this.backgroundImages.length > 0) {
                 var imageNum = Math.floor(Math.random() * this.backgroundImages.length)
-                this.backgroundUrl = "/public/images/" + this.backgroundImages[imageNum]
+                this.backgroundUrl = "/" + this.name + "/images/" + this.backgroundImages[imageNum]
+                Log.log("background URL "+this.backgroundUrl)
             }
             this.message = payload.quote;
             this.author = payload.author;
