@@ -10,8 +10,11 @@ module.exports = NodeHelper.create({
         this.endpoint = "qod";
         this.category = null;
         this.apiKey = "";
+        this.fetchInterval = 600000
+        this.loadImages();
     },
     socketNotificationReceived: function(notification, payload) {
+        console.log("inspirational received message "+notification)
         if (notification === "CONFIG") {
             this.url = payload.url;
             if (payload.category) {
@@ -23,8 +26,11 @@ module.exports = NodeHelper.create({
             if (payload.endpoint) {
                 this.endpoint = payload.endpoint;
             }
-            this.sendImages();
         } else if (notification == "FETCH") {
+            if (this.lastFetch && new Date() - this.lastFetch < this.fetchInterval) {
+                return
+            }
+            this.lastFetch = new Date()
             if (!this.qotdCache || !this.cacheDate || this.cacheDate - Date.now() > oneDay) {
                 console.log("no cache - fetching result")
                 this.fetchQotd();
@@ -53,10 +59,12 @@ module.exports = NodeHelper.create({
                 if (result.success && result.contents.quotes && result.contents.quotes.length > 0) {
                     this.qotdCache = result.contents.quotes[0];
                     this.cacheDate = new Date(result.contents.quotes[0].date);
+                    this.checkImage()
                     this.sendResult()
                 } else if (result.success && result.contents.quote) {
                     this.qotdCache = result.contents
                     this.cacheDate = new Date();
+                    this.checkImage()
                     this.sendResult()
                 } else {
                     console.log("no data "+result.contents)
@@ -71,7 +79,14 @@ module.exports = NodeHelper.create({
     sendResult: function() {
         this.sendSocketNotification("RESULT", this.qotdCache);
     },
-    sendImages: function() {
+    checkImage: function() {
+        if (!this.qotdCache.background && this.bgImages && this.bgImages.length > 0) {
+            this.qotdCache.background =
+                "/" + this.name + "/images/" +
+                this.bgImages[Math.floor(Math.random() * this.bgImages.length)]
+        }
+    },
+    loadImages: function() {
         const path = this.path+"/public/images"
         console.log("path "+path)
         fs.readdir(path, (err,dir) => {
@@ -80,17 +95,14 @@ module.exports = NodeHelper.create({
             } else if (!dir || !dir.length) {
                 console.err("Didn't fail to open "+path+", but dir is not set")
             } else {
-                var ret = [];
+                this.bgImages = [];
                 for (var ent of dir) {
                     const idx = ent.lastIndexOf(".")
                     if (idx == -1) continue;
                     const ext = ent.toLowerCase().substr(idx + 1)
                     if (["jpg","png","jpeg","tiff"].indexOf(ext) != -1) {
-                        ret.push(ent)
+                        this.bgImages.push(ent)
                     }
-                }
-                if (ret.length > 0) {
-                    this.sendSocketNotification("BGIMAGES", {images: ret})
                 }
             }
         })

@@ -53,16 +53,9 @@ Module.register("inspirational", {
             this.message = payload;
             this.author = null;
             this.updateDom(0);
-        } else if (notification === 'BGIMAGES') {
-            Log.log("received bgimages "+payload)
-            this.backgroundImages = payload.images;
         } else {
             if (payload.background) {
                 this.backgroundUrl = payload.background;
-            } else if (this.backgroundImages && this.backgroundImages.length > 0) {
-                var imageNum = Math.floor(Math.random() * this.backgroundImages.length)
-                this.backgroundUrl = "/" + this.name + "/images/" + this.backgroundImages[imageNum]
-                Log.log("background URL "+this.backgroundUrl)
             }
             this.message = payload.quote;
             this.author = payload.author;
